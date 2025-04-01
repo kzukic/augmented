@@ -3,26 +3,8 @@
 <head>
   <title>Dual-View Perception</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-</head>
-<body>
-  <a-scene>
-    <!-- Example of an object with the 'toggle-object' class -->
-    <a-box class="toggle-object" position="0 1 -3" 
-           material="color: blue" 
-           data-normal-color="blue" 
-           data-heat-color="red" 
-           data-label="Hot Box"></a-box>
-    <a-sphere class="toggle-object" position="3 1 -3" 
-              material="color: green" 
-              data-normal-color="green" 
-              data-heat-color="orange" 
-              data-label="Hot Sphere"></a-sphere>
-
-    <button id="toggleButton">Toggle View</button>
-  </a-scene>
-
+  <!-- Register the toggle-view component before the scene -->
   <script>
-    // The toggle-view component code
     AFRAME.registerComponent('toggle-view', {
       init: function () {
         let sceneEl = this.el;
@@ -61,5 +43,22 @@
       }
     });
   </script>
+</head>
+<body>
+  <a-scene>
+    <!-- Example of an object with the 'toggle-object' class -->
+    <a-box class="toggle-object" position="0 1 -3" 
+           material="color: blue" 
+           data-normal-color="blue" 
+           data-heat-color="red" 
+           data-label="Hot Box"></a-box>
+    <a-sphere class="toggle-object" position="3 1 -3" 
+              material="color: green" 
+              data-normal-color="green" 
+              data-heat-color="orange" 
+              data-label="Hot Sphere"></a-sphere>
+
+    <button id="toggleButton">Toggle View</button>
+  </a-scene>
 </body>
 </html>
