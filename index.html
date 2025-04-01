@@ -2,60 +2,59 @@
 <html>
 <head>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script>
+        AFRAME.registerComponent('toggle-material', {
+            init: function () {
+                let el = this.el;
+                let materials = [
+                    { color: 'red', metalness: 0, roughness: 1 },
+                    { color: 'silver', metalness: 1, roughness: 0.5 },
+                    { wireframe: true }
+                ];
+                let index = 0;
+                el.addEventListener('click', function () {
+                    index = (index + 1) % materials.length;
+                    el.setAttribute('material', materials[index]);
+                });
+            }
+        });
+        
+        AFRAME.registerComponent('toggle-size', {
+            init: function () {
+                let el = this.el;
+                let sizes = ['1 1 1', '1.5 1.5 1.5', '0.5 0.5 0.5'];
+                let index = 0;
+                el.addEventListener('click', function () {
+                    index = (index + 1) % sizes.length;
+                    el.setAttribute('scale', sizes[index]);
+                });
+            }
+        });
+        
+        AFRAME.registerComponent('identify-shape', {
+            init: function () {
+                let el = this.el;
+                let shape = el.getAttribute('geometry').primitive;
+                el.addEventListener('click', function () {
+                    alert(`You clicked a ${shape}`);
+                });
+            }
+        });
+    </script>
 </head>
 <body>
     <a-scene>
-        <!-- Camera & Controls -->
-        <a-camera position="0 1.6 2">
-            <a-cursor></a-cursor>
-        </a-camera>
-
-        <!-- Shapes -->
-        <a-box id="cube" position="-1 1 -3" rotation="0 45 0" color="red"></a-box>
-        <a-sphere id="sphere" position="1 1 -3" radius="0.5" color="blue"></a-sphere>
-        <a-cone id="triangle" position="0 1 -3" radius-bottom="0.5" height="1" color="green"></a-cone>
-
-        <!-- Buttons -->
-        <a-entity id="toggleMaterial" position="-1 0.5 -2" text="value: Toggle Material; align: center" geometry="primitive: plane" material="color: gray"></a-entity>
-        <a-entity id="resize" position="1 0.5 -2" text="value: Resize; align: center" geometry="primitive: plane" material="color: gray" ></a-entity>
-        <a-entity id="robotView" position="0 0.5 -2" text="value: Robot View; align: center" geometry="primitive: plane" material="color: gray" ></a-entity>
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#888"></a-plane>
+        
+        <a-box class="clickable" toggle-material toggle-size identify-shape position="-1 1 -3" color="red"></a-box>
+        <a-sphere class="clickable" toggle-material toggle-size identify-shape position="1 1 -3" radius="0.7" color="blue"></a-sphere>
+        <a-cone class="clickable" toggle-material toggle-size identify-shape position="0 1 -3" radius-bottom="0.5" height="1" color="green"></a-cone>
+        
+        <a-entity position="0 1.6 0">
+            <a-camera>
+                <a-cursor raycaster="objects: .clickable"></a-cursor>
+            </a-camera>
+        </a-entity>
     </a-scene>
-
-    <script>
-        // Function to toggle material
-        let isWireframe = false;
-        document.querySelector('#toggleMaterial').addEventListener('click', () => {
-            isWireframe = !isWireframe;
-            document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
-                shape.setAttribute('material', `wireframe: ${isWireframe}`);
-            });
-        });
-
-        // Function to resize objects
-        let isBig = false;
-        document.querySelector('#resize').addEventListener('click', () => {
-            isBig = !isBig;
-            document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
-                shape.setAttribute('scale', isBig ? '1.5 1.5 1.5' : '1 1 1');
-            });
-        });
-
-        // Function to simulate robot view
-        let robotViewActive = false;
-        document.querySelector('#robotView').addEventListener('click', () => {
-            robotViewActive = !robotViewActive;
-            document.querySelector('a-scene').setAttribute('background', `color: ${robotViewActive ? 'black' : 'white'}`);
-            document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
-                shape.setAttribute('material', `color: ${robotViewActive ? 'red' : 'gray'}`);
-            });
-        });
-
-        // Display object name on click
-        document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
-            shape.addEventListener('click', (e) => {
-                alert(`You clicked a ${e.target.nodeName.replace('A-', '').toLowerCase()}`);
-            });
-        });
-    </script>
 </body>
 </html>
