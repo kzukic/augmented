@@ -1,53 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <style>
-        #toggleButton {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            font-size: 18px;
-            background-color: #222;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
+  <title>Dual-View Perception</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 </head>
 <body>
-    <button id="toggleButton">Switch to Robot Vision</button>
-    
-    <a-scene>
-        <a-box id="box" position="0 1 -3" rotation="0 45 0" color="blue"></a-box>
-        <a-sphere id="sphere" position="-2 1.5 -3" radius="0.7" color="green"></a-sphere>
-        <a-cylinder id="cylinder" position="2 1 -3" radius="0.5" height="1.5" color="yellow"></a-cylinder>
-        
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="6" height="6" color="#888"></a-plane>
-        <a-sky color="#ECECEC"></a-sky>
-    </a-scene>
-    
-    <script>
-        let isRobotVision = false;
-        const button = document.getElementById("toggleButton");
-        const objects = [
-            document.getElementById("box"),
-            document.getElementById("sphere"),
-            document.getElementById("cylinder")
-        ];
+  <a-scene>
+    <a-box class="toggle-object" position="0 1 -3" 
+           material="color: blue" 
+           data-normal-color="blue" 
+           data-heat-color="red" 
+           data-label="Hot Box"></a-box>
+    <button id="toggleButton">Toggle View</button>
+  </a-scene>
 
-        button.addEventListener("click", () => {
-            isRobotVision = !isRobotVision;
-            objects.forEach(obj => {
-                obj.setAttribute("color", isRobotVision ? "red" : obj.getAttribute("data-original-color"));
-            });
-            button.textContent = isRobotVision ? "Switch to Normal Vision" : "Switch to Robot Vision";
+  <script>
+    // The toggle-view component code here
+    AFRAME.registerComponent('toggle-view', {
+      init: function () {
+        let sceneEl = this.el;
+        let isRobotView = false;
+
+        document.querySelector('#toggleButton').addEventListener('click', function () {
+          isRobotView = !isRobotView;
+          sceneEl.querySelectorAll('.toggle-object').forEach(obj => {
+            if (isRobotView) {
+              obj.setAttribute('material', 'color', obj.dataset.heatColor); // Apply heatmap colors
+              let label = document.createElement('a-text');
+              label.setAttribute('value', obj.dataset.label);
+              label.setAttribute('position', '0 1.5 0');
+              label.setAttribute('align', 'center');
+              label.setAttribute('color', 'yellow');
+              obj.appendChild(label);
+              obj.labelEl = label;
+            } else {
+              obj.setAttribute('material', 'color', obj.dataset.normalColor); // Reset to normal
+              if (obj.labelEl) {
+                obj.removeChild(obj.labelEl); // Remove label in human view
+              }
+            }
+          });
         });
-        
-        // Save original colors
-        objects.forEach(obj => obj.setAttribute("data-original-color", obj.getAttribute("color")));
-    </script>
+      }
+    });
+  </script>
 </body>
 </html>
