@@ -5,49 +5,59 @@
   </head>
   <body>
     <a-scene>
-      <a-plane position="0 0 -3" rotation="-90 0 0" width="4" height="4" color="#CCC"></a-plane>
+      <a-box position="-1 0.5 -3" color="red" id="cube"></a-box>
+      <a-sphere position="1 0.5 -3" radius="0.5" color="blue" id="sphere"></a-sphere>
+      <a-cone position="0 0.5 -3" radius-bottom="0.5" height="1" color="green" id="cone"></a-cone>
       
-      <a-box id="cube" position="-1 0.5 -3" color="red" clickable></a-box>
-      <a-sphere id="sphere" position="1 0.5 -3" radius="0.5" color="blue" clickable></a-sphere>
-      <a-cone id="cone" position="0 0.5 -3" radius-bottom="0.5" height="1" color="green" clickable></a-cone>
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="gray"></a-plane>
       
-      <a-entity id="buttons" position="0 -0.5 -2">
-        <a-plane position="0 0 0" width="2" height="1" color="purple"></a-plane>
-        <a-entity position="-0.5 0.2 0">
-          <a-box id="toggleMaterial" width="0.4" height="0.2" depth="0.05" color="white" clickable>
-            <a-text value="Material" align="center" position="0 0 0.03"></a-text>
-          </a-box>
-        </a-entity>
-        <a-entity position="0.5 0.2 0">
-          <a-box id="changeSize" width="0.4" height="0.2" depth="0.05" color="white" clickable>
-            <a-text value="Size" align="center" position="0 0 0.03"></a-text>
-          </a-box>
-        </a-entity>
-        <a-entity position="0 -0.2 0">
-          <a-box id="toggleInfrared" width="0.4" height="0.2" depth="0.05" color="white" clickable>
-            <a-text value="Infrared" align="center" position="0 0 0.03"></a-text>
-          </a-box>
-        </a-entity>
+      <a-entity id="buttons" position="0 0 -3">
+        <a-plane position="0 -1 0" width="1.5" height="1" color="purple"></a-plane>
+        <a-text value="Toggle Material" position="-0.5 -0.8 0" width="2" id="toggleMaterial"></a-text>
+        <a-text value="Resize" position="0.5 -0.8 0" width="2" id="resize"></a-text>
+        <a-text value="Infrared View" position="0 -0.6 0" width="2" id="infraredView"></a-text>
       </a-entity>
-      
-      <a-camera position="0 1.6 0">
-        <a-cursor></a-cursor>
-      </a-camera>
     </a-scene>
 
     <script>
-      document.querySelectorAll('[clickable]').forEach(el => {
-        el.addEventListener('click', () => {
-          console.log(`You clicked a ${el.id}`);
-        });
-      });
-
       let infraredMode = false;
-      document.querySelector('#toggleInfrared').addEventListener('click', () => {
+      let defaultColors = {
+        cube: "red",
+        sphere: "blue",
+        cone: "green"
+      };
+      
+      document.querySelector("#toggleMaterial").addEventListener("click", function () {
+        let cube = document.querySelector("#cube");
+        let sphere = document.querySelector("#sphere");
+        let cone = document.querySelector("#cone");
+        cube.setAttribute("color", cube.getAttribute("color") === "silver" ? "red" : "silver");
+        sphere.setAttribute("color", sphere.getAttribute("color") === "silver" ? "blue" : "silver");
+        cone.setAttribute("color", cone.getAttribute("color") === "silver" ? "green" : "silver");
+      });
+      
+      document.querySelector("#resize").addEventListener("click", function () {
+        let sphere = document.querySelector("#sphere");
+        let newSize = sphere.getAttribute("radius") === "0.5" ? "1" : "0.5";
+        sphere.setAttribute("radius", newSize);
+      });
+      
+      document.querySelector("#infraredView").addEventListener("click", function () {
+        let cube = document.querySelector("#cube");
+        let sphere = document.querySelector("#sphere");
+        let cone = document.querySelector("#cone");
+        
+        if (infraredMode) {
+          cube.setAttribute("color", defaultColors.cube);
+          sphere.setAttribute("color", defaultColors.sphere);
+          cone.setAttribute("color", defaultColors.cone);
+        } else {
+          cube.setAttribute("color", "black");
+          sphere.setAttribute("color", "black");
+          cone.setAttribute("color", "black");
+        }
+        
         infraredMode = !infraredMode;
-        document.querySelectorAll('[clickable]').forEach(el => {
-          el.setAttribute('color', infraredMode ? 'black' : el.getAttribute('original-color'));
-        });
       });
     </script>
   </body>
