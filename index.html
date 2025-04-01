@@ -6,37 +6,54 @@
 </head>
 <body>
   <a-scene>
+    <!-- Example of an object with the 'toggle-object' class -->
     <a-box class="toggle-object" position="0 1 -3" 
            material="color: blue" 
            data-normal-color="blue" 
            data-heat-color="red" 
            data-label="Hot Box"></a-box>
+    <a-sphere class="toggle-object" position="3 1 -3" 
+              material="color: green" 
+              data-normal-color="green" 
+              data-heat-color="orange" 
+              data-label="Hot Sphere"></a-sphere>
+
     <button id="toggleButton">Toggle View</button>
   </a-scene>
 
   <script>
-    // The toggle-view component code here
+    // The toggle-view component code
     AFRAME.registerComponent('toggle-view', {
       init: function () {
         let sceneEl = this.el;
-        let isRobotView = false;
+        let isRobotView = false;  // Track whether we are in robot view (heatmap view)
 
+        // Add event listener for the toggle button
         document.querySelector('#toggleButton').addEventListener('click', function () {
-          isRobotView = !isRobotView;
+          isRobotView = !isRobotView;  // Toggle view state
+
           sceneEl.querySelectorAll('.toggle-object').forEach(obj => {
             if (isRobotView) {
-              obj.setAttribute('material', 'color', obj.dataset.heatColor); // Apply heatmap colors
-              let label = document.createElement('a-text');
-              label.setAttribute('value', obj.dataset.label);
-              label.setAttribute('position', '0 1.5 0');
-              label.setAttribute('align', 'center');
-              label.setAttribute('color', 'yellow');
-              obj.appendChild(label);
-              obj.labelEl = label;
+              // Apply heatmap color (robot view)
+              obj.setAttribute('material', 'color', obj.dataset.heatColor);
+
+              // Add labels if not already added
+              if (!obj.querySelector('a-text')) {
+                let label = document.createElement('a-text');
+                label.setAttribute('value', obj.dataset.label);
+                label.setAttribute('position', '0 1.5 0'); // Position above the object
+                label.setAttribute('align', 'center');
+                label.setAttribute('color', 'yellow');
+                obj.appendChild(label);
+              }
             } else {
-              obj.setAttribute('material', 'color', obj.dataset.normalColor); // Reset to normal
-              if (obj.labelEl) {
-                obj.removeChild(obj.labelEl); // Remove label in human view
+              // Apply normal color (human view)
+              obj.setAttribute('material', 'color', obj.dataset.normalColor);
+
+              // Remove label if it's there
+              let label = obj.querySelector('a-text');
+              if (label) {
+                obj.removeChild(label);
               }
             }
           });
