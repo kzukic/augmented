@@ -1,38 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
     <a-scene>
-        <!-- Lighting -->
-        <a-light type="directional" color="#fff" position="2 4 3"></a-light>
+        <!-- Camera & Controls -->
+        <a-camera position="0 1.6 2">
+            <a-cursor></a-cursor>
+        </a-camera>
 
-        <!-- Interactive Box -->
-        <a-box id="interactive-box" position="0 1 -3" rotation="0 45 0" 
-               color="blue" material="wireframe: false">
-        </a-box>
+        <!-- Shapes -->
+        <a-box id="cube" position="-1 1 -3" rotation="0 45 0" color="red"></a-box>
+        <a-sphere id="sphere" position="1 1 -3" radius="0.5" color="blue"></a-sphere>
+        <a-cone id="triangle" position="0 1 -3" radius-bottom="0.5" height="1" color="green"></a-cone>
+
+        <!-- Buttons -->
+        <a-entity id="toggleMaterial" position="-1 0.5 -2" text="value: Toggle Material; align: center" geometry="primitive: plane" material="color: gray"></a-entity>
+        <a-entity id="resize" position="1 0.5 -2" text="value: Resize; align: center" geometry="primitive: plane" material="color: gray" ></a-entity>
+        <a-entity id="robotView" position="0 0.5 -2" text="value: Robot View; align: center" geometry="primitive: plane" material="color: gray" ></a-entity>
     </a-scene>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const box = document.querySelector("#interactive-box");
-            let isScaled = false;
-            let isWireframe = false;
+        // Function to toggle material
+        let isWireframe = false;
+        document.querySelector('#toggleMaterial').addEventListener('click', () => {
+            isWireframe = !isWireframe;
+            document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
+                shape.setAttribute('material', `wireframe: ${isWireframe}`);
+            });
+        });
 
-            box.addEventListener("click", () => {
-                // Toggle Scale
-                if (isScaled) {
-                    box.setAttribute("scale", "1 1 1");
-                } else {
-                    box.setAttribute("scale", "2 2 2");
-                }
-                isScaled = !isScaled;
+        // Function to resize objects
+        let isBig = false;
+        document.querySelector('#resize').addEventListener('click', () => {
+            isBig = !isBig;
+            document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
+                shape.setAttribute('scale', isBig ? '1.5 1.5 1.5' : '1 1 1');
+            });
+        });
 
-                // Toggle Material Wireframe
-                isWireframe = !isWireframe;
-                box.setAttribute("material", "wireframe", isWireframe);
+        // Function to simulate robot view
+        let robotViewActive = false;
+        document.querySelector('#robotView').addEventListener('click', () => {
+            robotViewActive = !robotViewActive;
+            document.querySelector('a-scene').setAttribute('background', `color: ${robotViewActive ? 'black' : 'white'}`);
+            document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
+                shape.setAttribute('material', `color: ${robotViewActive ? 'red' : 'gray'}`);
+            });
+        });
+
+        // Display object name on click
+        document.querySelectorAll('a-box, a-sphere, a-cone').forEach(shape => {
+            shape.addEventListener('click', (e) => {
+                alert(`You clicked a ${e.target.nodeName.replace('A-', '').toLowerCase()}`);
             });
         });
     </script>
