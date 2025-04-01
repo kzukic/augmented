@@ -4,59 +4,51 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   </head>
   <body>
-    <a-scene cursor="rayOrigin: mouse">
-      <!-- Ground Plane (Adjusted Lower) -->
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="8" height="4" color="#AAAAAA"></a-plane>
+    <a-scene>
+      <a-plane position="0 0 -3" rotation="-90 0 0" width="4" height="4" color="#CCC"></a-plane>
       
-      <!-- Shapes -->
-      <a-box id="box" position="-1 0.5 -3" color="red" class="clickable"></a-box>
-      <a-cone id="cone" position="0 0.5 -3" color="green" class="clickable"></a-cone>
-      <a-sphere id="sphere" position="1 0.5 -3" color="blue" class="clickable"></a-sphere>
+      <a-box id="cube" position="-1 0.5 -3" color="red" clickable></a-box>
+      <a-sphere id="sphere" position="1 0.5 -3" radius="0.5" color="blue" clickable></a-sphere>
+      <a-cone id="cone" position="0 0.5 -3" radius-bottom="0.5" height="1" color="green" clickable></a-cone>
       
-      <!-- UI Buttons (Moved Above Plane) -->
-      <a-entity position="0 1.5 -3">
-        <a-plane width="2" height="0.5" color="#888888"></a-plane>
-        <a-text value="Toggle Material" position="-0.9 0 0.1" scale="0.5 0.5 0.5" class="button" onclick="toggleMaterial()"></a-text>
-        <a-text value="Alter Size" position="-0.3 0 0.1" scale="0.5 0.5 0.5" class="button" onclick="alterSize()"></a-text>
-        <a-text value="Infrared View" position="0.5 0 0.1" scale="0.5 0.5 0.5" class="button" onclick="toggleInfrared()"></a-text>
+      <a-entity id="buttons" position="0 -0.5 -2">
+        <a-plane position="0 0 0" width="2" height="1" color="purple"></a-plane>
+        <a-entity position="-0.5 0.2 0">
+          <a-box id="toggleMaterial" width="0.4" height="0.2" depth="0.05" color="white" clickable>
+            <a-text value="Material" align="center" position="0 0 0.03"></a-text>
+          </a-box>
+        </a-entity>
+        <a-entity position="0.5 0.2 0">
+          <a-box id="changeSize" width="0.4" height="0.2" depth="0.05" color="white" clickable>
+            <a-text value="Size" align="center" position="0 0 0.03"></a-text>
+          </a-box>
+        </a-entity>
+        <a-entity position="0 -0.2 0">
+          <a-box id="toggleInfrared" width="0.4" height="0.2" depth="0.05" color="white" clickable>
+            <a-text value="Infrared" align="center" position="0 0 0.03"></a-text>
+          </a-box>
+        </a-entity>
       </a-entity>
       
-      <!-- Event Listeners & Scripts -->
-      <script>
-        document.querySelectorAll('.clickable').forEach(el => {
-          el.addEventListener('click', () => {
-            alert(`You clicked a ${el.id}`);
-          });
-        });
-
-        function toggleMaterial() {
-          document.querySelectorAll('.clickable').forEach(el => {
-            let mat = el.getAttribute('material');
-            if (mat.wireframe) {
-              el.setAttribute('material', 'wireframe: false');
-            } else {
-              el.setAttribute('material', 'wireframe: true');
-            }
-          });
-        }
-
-        function alterSize() {
-          document.querySelectorAll('.clickable').forEach(el => {
-            let scale = el.getAttribute('scale');
-            if (scale.x === 1) {
-              el.setAttribute('scale', '1.5 1.5 1.5');
-            } else {
-              el.setAttribute('scale', '1 1 1');
-            }
-          });
-        }
-
-        function toggleInfrared() {
-          document.querySelectorAll('.clickable').forEach(el => {
-            el.setAttribute('material', 'color: black; emissive: red');
-          });
-        }
-      </script>
+      <a-camera position="0 1.6 0">
+        <a-cursor></a-cursor>
+      </a-camera>
     </a-scene>
+
+    <script>
+      document.querySelectorAll('[clickable]').forEach(el => {
+        el.addEventListener('click', () => {
+          console.log(`You clicked a ${el.id}`);
+        });
+      });
+
+      let infraredMode = false;
+      document.querySelector('#toggleInfrared').addEventListener('click', () => {
+        infraredMode = !infraredMode;
+        document.querySelectorAll('[clickable]').forEach(el => {
+          el.setAttribute('color', infraredMode ? 'black' : el.getAttribute('original-color'));
+        });
+      });
+    </script>
   </body>
 </html>
