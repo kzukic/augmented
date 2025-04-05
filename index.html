@@ -2,92 +2,135 @@
 <html>
   <head>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      .view-label {
+        position: fixed;
+        color: white;
+        font-size: 20px;
+        background: rgba(0,0,0,0.7);
+        padding: 5px 10px;
+        z-index: 9999;
+      }
+      #view-label { top: 10px; left: 10px; }
+      #info-display { 
+        position: fixed;
+        bottom: 20px;
+        width: 100%;
+        text-align: center;
+        color: white;
+        background: rgba(0,0,0,0.5);
+        padding: 10px;
+        z-index: 9999;
+      }
+    </style>
   </head>
   <body>
     <a-scene>
-      <!-- Cursor and Camera -->
-      <a-entity id="camera" camera look-controls
-                cursor="fuse: false; rayOrigin: mouse"
-                raycaster="objects: .clickable">
-        <a-entity cursor
-                  geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                  material="color: black; shader: flat"
-                  position="0 0 -1">
-        </a-entity>
+      <!-- Camera -->
+      <a-entity id="camera" camera look-controls wasd-controls="enabled: false" position="0 1.6 0">
+        <a-entity cursor="rayOrigin: mouse" raycaster="objects: .interactable, .ui-button"></a-entity>
       </a-entity>
 
+      <!-- View Label -->
+      <div id="view-label" class="view-label">NORMAL VIEW</div>
+      <div id="info-display"></div>
+
+      <!-- Scene Objects -->
+      <a-box class="interactable" position="-1 0.5 -2" color="#4CC3D9" 
+             data-info="Box Object (Basic Shape)"></a-box>
+             
+      <a-sphere class="interactable" position="0 0.5 -2" color="#EF2D5E" radius="0.5"
+                data-info="Sphere Object (Basic Shape)"></a-sphere>
+                
+      <a-cone class="interactable" position="1 0.5 -2" color="#FFC65D" height="0.8" radius-bottom="0.4"
+              data-info="Cone Object (Basic Shape)"></a-cone>
+
       <!-- Ground -->
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="8" height="4" color="#AAAAAA"></a-plane>
+      <a-plane position="0 0 -2" rotation="-90 0 0" width="10" height="10" color="#7BC8A4" repeat="10 10"></a-plane>
 
-      <!-- Shapes -->
-      <a-box id="box" position="-1 0.5 -3" color="yellow" class="clickable"></a-box>
-      <a-cone id="cone" position="0 0.5 -3" color="green" class="clickable"></a-cone>
-      <a-sphere id="sphere" position="1 0.5 -3" color="blue" class="clickable"></a-sphere>
-
-      <!-- UI Buttons -->
-      <a-entity id="ui-buttons" position="0 2 -3">
-        <!-- Toggle Material Button -->
-        <a-plane id="btnMaterial" class="clickable" position="0 0.4 0" width="2" height="0.4" color="purple">
-          <a-text value="Toggle Material" align="center" color="white" position="0 0 0.1" scale="0.5 0.5 0.5"></a-text>
-        </a-plane>
-
-        <!-- Alter Size Button -->
-        <a-plane id="btnSize" class="clickable" position="0 0 0" width="2" height="0.4" color="purple">
-          <a-text value="Alter Size" align="center" color="white" position="0 0 0.1" scale="0.5 0.5 0.5"></a-text>
-        </a-plane>
-
-        <!-- Infrared View Button -->
-        <a-plane id="btnInfrared" class="clickable" position="0 -0.4 0" width="2" height="0.4" color="purple">
-          <a-text value="Infrared View" align="center" color="white" position="0 0 0.1" scale="0.5 0.5 0.5"></a-text>
-        </a-plane>
+      <!-- UI Controls - Original size but fully clickable -->
+      <a-entity position="0 0.3 -1" class="ui">
+        <a-ring class="ui-button" color="#F16745" 
+                radius-inner="0.08" 
+                radius-outer="0.1"
+                position="0 0 0">
+          <a-text value="TOGGLE VIEW" 
+                  align="center" 
+                  position="0 0 0.01" 
+                  scale="0.3 0.3 0.3" 
+                  color="white"></a-text>
+        </a-ring>
       </a-entity>
 
       <script>
-        const defaultColors = {
-          box: "yellow",
-          cone: "green",
-          sphere: "blue"
-        };
+        // View State Management
+        let currentView = 'normal';
+        const viewLabel = document.getElementById('view-label');
+        const infoDisplay = document.getElementById('info-display');
+        const toggleBtn = document.querySelector('.ui-button');
 
-        let infraredActive = false;
+        // Toggle between normal and analysis views
+        function toggleViewMode() {
+          const objects = document.querySelectorAll('.interactable');
+          
+          if (currentView === 'normal') {
+            // Switch to Analysis View
+            objects.forEach(obj => {
+              obj.setAttribute('material', {
+                wireframe: true,
+                emissive: '#FF0000',
+                emissiveIntensity: 0.5,
+                transparent: true,
+                opacity: 0.8
+              });
+            });
+            viewLabel.textContent = 'ANALYSIS VIEW';
+            infoDisplay.textContent = 'Technical View Active';
+            currentView = 'analysis';
+          } else {
+            // Switch to Normal View
+            objects.forEach(obj => {
+              obj.setAttribute('material', {
+                wireframe: false,
+                emissive: '#000000',
+                color: obj.getAttribute('color'),
+                transparent: false
+              });
+            });
+            viewLabel.textContent = 'NORMAL VIEW';
+            infoDisplay.textContent = '';
+            currentView = 'normal';
+          }
+        }
 
-        // Toggle wireframe material
-        document.querySelector('#btnMaterial').addEventListener('click', () => {
-          document.querySelectorAll('.clickable').forEach(el => {
-            const mat = el.getAttribute('material') || {};
-            el.setAttribute('material', `wireframe: ${!mat.wireframe}`);
-          });
+        // Make entire ring clickable (not just text)
+        toggleBtn.addEventListener('click', toggleViewMode);
+        
+        // Add visual feedback on hover
+        toggleBtn.addEventListener('mouseenter', function() {
+          this.setAttribute('material', 'color', '#FF826E');
+        });
+        toggleBtn.addEventListener('mouseleave', function() {
+          this.setAttribute('material', 'color', '#F16745');
         });
 
-        // Resize shapes
-        document.querySelector('#btnSize').addEventListener('click', () => {
-          document.querySelectorAll('.clickable').forEach(el => {
-            const scale = el.getAttribute('scale') || {x: 1, y: 1, z: 1};
-            const enlarged = scale.x > 1;
-            el.setAttribute('scale', enlarged ? '1 1 1' : '1.1 1.1 1.1');
+        // Object interaction
+        document.querySelectorAll('.interactable').forEach(obj => {
+          obj.addEventListener('mouseenter', function() {
+            this.setAttribute('scale', '1.1 1.1 1.1');
+            infoDisplay.textContent = this.getAttribute('data-info');
           });
-        });
-
-        // Infrared toggle
-        document.querySelector('#btnInfrared').addEventListener('click', () => {
-          infraredActive = !infraredActive;
-          document.querySelectorAll('.clickable').forEach(el => {
-            const id = el.getAttribute('id');
-            if (infraredActive) {
-              el.setAttribute('material', 'color: black; emissive: red');
-            } else {
-              el.setAttribute('material', `color: ${defaultColors[id]}; emissive: ""`);
+          
+          obj.addEventListener('mouseleave', function() {
+            this.setAttribute('scale', '1 1 1');
+            if (currentView === 'normal') {
+              infoDisplay.textContent = '';
             }
           });
-        });
-
-        // Shape click feedback
-        document.querySelectorAll('.clickable').forEach(el => {
-          if (!el.id.includes("btn")) {
-            el.addEventListener('click', () => {
-              alert(`You clicked a ${el.id}`);
-            });
-          }
+          
+          obj.addEventListener('click', function() {
+            alert(`Current View: ${currentView.toUpperCase()}\nObject: ${this.getAttribute('data-info')}`);
+          });
         });
       </script>
     </a-scene>
