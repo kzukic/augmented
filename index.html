@@ -4,7 +4,18 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   </head>
   <body>
-    <a-scene cursor="rayOrigin: mouse">
+    <a-scene>
+      <!-- Cursor and Camera -->
+      <a-entity id="camera" camera look-controls
+                cursor="fuse: false; rayOrigin: mouse"
+                raycaster="objects: .clickable">
+        <a-entity cursor
+                  geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+                  material="color: black; shader: flat"
+                  position="0 0 -1">
+        </a-entity>
+      </a-entity>
+
       <!-- Ground -->
       <a-plane position="0 0 -4" rotation="-90 0 0" width="8" height="4" color="#AAAAAA"></a-plane>
 
@@ -13,31 +24,25 @@
       <a-cone id="cone" position="0 0.5 -3" color="green" class="clickable"></a-cone>
       <a-sphere id="sphere" position="1 0.5 -3" color="blue" class="clickable"></a-sphere>
 
-      <!-- Pointer Circle -->
-      <a-entity cursor="fuse: false; rayOrigin: mouse" position="0 0 -1"
-                geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                material="color: black; shader: flat"></a-entity>
-
       <!-- UI Buttons -->
       <a-entity id="ui-buttons" position="0 2 -3">
         <!-- Toggle Material Button -->
-        <a-plane position="0 0.4 0" width="2" height="0.4" color="purple" class="button">
+        <a-plane id="btnMaterial" class="clickable" position="0 0.4 0" width="2" height="0.4" color="purple">
           <a-text value="Toggle Material" align="center" color="white" position="0 0 0.1" scale="0.5 0.5 0.5"></a-text>
         </a-plane>
 
         <!-- Alter Size Button -->
-        <a-plane position="0 0 0" width="2" height="0.4" color="purple" class="button" id="resizeBtn">
+        <a-plane id="btnSize" class="clickable" position="0 0 0" width="2" height="0.4" color="purple">
           <a-text value="Alter Size" align="center" color="white" position="0 0 0.1" scale="0.5 0.5 0.5"></a-text>
         </a-plane>
 
-        <!-- Infrared Button -->
-        <a-plane position="0 -0.4 0" width="2" height="0.4" color="purple" class="button" id="infraredBtn">
+        <!-- Infrared View Button -->
+        <a-plane id="btnInfrared" class="clickable" position="0 -0.4 0" width="2" height="0.4" color="purple">
           <a-text value="Infrared View" align="center" color="white" position="0 0 0.1" scale="0.5 0.5 0.5"></a-text>
         </a-plane>
       </a-entity>
 
       <script>
-        // Store default colors
         const defaultColors = {
           box: "red",
           cone: "green",
@@ -46,44 +51,43 @@
 
         let infraredActive = false;
 
-        document.querySelectorAll('.clickable').forEach(el => {
-          el.addEventListener('click', () => {
-            alert(`You clicked a ${el.id}`);
-          });
-        });
-
-        // Toggle Material (wireframe)
-        document.querySelector('.button a-text').addEventListener('click', () => {
+        // Toggle wireframe material
+        document.querySelector('#btnMaterial').addEventListener('click', () => {
           document.querySelectorAll('.clickable').forEach(el => {
-            let mat = el.getAttribute('material');
-            if (mat && mat.wireframe) {
-              el.setAttribute('material', 'wireframe: false');
-            } else {
-              el.setAttribute('material', 'wireframe: true');
-            }
+            const mat = el.getAttribute('material') || {};
+            el.setAttribute('material', `wireframe: ${!mat.wireframe}`);
           });
         });
 
-        // Alter Size
-        document.querySelector('#resizeBtn').addEventListener('click', () => {
+        // Resize shapes
+        document.querySelector('#btnSize').addEventListener('click', () => {
           document.querySelectorAll('.clickable').forEach(el => {
-            let scale = el.getAttribute('scale') || {x: 1, y: 1, z: 1};
-            let newScale = scale.x == 1 ? '1.5 1.5 1.5' : '1 1 1';
-            el.setAttribute('scale', newScale);
+            const scale = el.getAttribute('scale') || {x: 1, y: 1, z: 1};
+            const enlarged = scale.x > 1;
+            el.setAttribute('scale', enlarged ? '1 1 1' : '1.5 1.5 1.5');
           });
         });
 
-        // Toggle Infrared
-        document.querySelector('#infraredBtn').addEventListener('click', () => {
+        // Infrared toggle
+        document.querySelector('#btnInfrared').addEventListener('click', () => {
           infraredActive = !infraredActive;
           document.querySelectorAll('.clickable').forEach(el => {
+            const id = el.getAttribute('id');
             if (infraredActive) {
               el.setAttribute('material', 'color: black; emissive: red');
             } else {
-              const id = el.getAttribute('id');
-              el.setAttribute('material', `color: ${defaultColors[id]}; emissive: none`);
+              el.setAttribute('material', `color: ${defaultColors[id]}; emissive: ""`);
             }
           });
+        });
+
+        // Shape click feedback
+        document.querySelectorAll('.clickable').forEach(el => {
+          if (!el.id.includes("btn")) {
+            el.addEventListener('click', () => {
+              alert(`You clicked a ${el.id}`);
+            });
+          }
         });
       </script>
     </a-scene>
