@@ -20,7 +20,7 @@
       <a-plane position="0 0 -4" rotation="-90 0 0" width="8" height="4" color="#AAAAAA"></a-plane>
 
       <!-- Shapes -->
-      <a-box id="box" position="-1 0.5 -3" color="red" class="clickable"></a-box>
+      <a-box id="box" position="-1 0.5 -3" color="yellow" class="clickable"></a-box>
       <a-cone id="cone" position="0 0.5 -3" color="green" class="clickable"></a-cone>
       <a-sphere id="sphere" position="1 0.5 -3" color="blue" class="clickable"></a-sphere>
 
@@ -44,7 +44,7 @@
 
       <script>
         const defaultColors = {
-          box: "red",
+          box: "yellow",
           cone: "green",
           sphere: "blue"
         };
@@ -64,7 +64,7 @@
           document.querySelectorAll('.clickable').forEach(el => {
             const scale = el.getAttribute('scale') || {x: 1, y: 1, z: 1};
             const enlarged = scale.x > 1;
-            el.setAttribute('scale', enlarged ? '1 1 1' : '1.5 1.5 1.5');
+            el.setAttribute('scale', enlarged ? '1 1 1' : '1.1 1.1 1.1');
           });
         });
 
