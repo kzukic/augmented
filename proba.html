@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- Use COMPATIBLE versions -->
+    <!-- Compatible A-Frame + Physics versions -->
     <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v3.3.0/dist/aframe-physics-system.min.js"></script>
-
     <style>
+      body { margin: 0; overflow: hidden; }
       .view-label {
         position: fixed;
         top: 10px;
@@ -35,23 +35,24 @@
       }
     </style>
   </head>
-
   <body>
     <div class="view-label" id="view-label">HOLD THE BUTTON TO SHOOT</div>
     <div id="power"><div id="power-fill"></div></div>
 
-    <a-scene physics="gravity: -9.8" embedded>
+    <a-scene physics="gravity: -9.8" embedded background="color: #222">
+      <!-- Lighting -->
+      <a-entity light="type: ambient; color: #ffffff; intensity: 1"></a-entity>
+      <a-entity light="type: directional; color: #fff; intensity: 1" position="0 4 -2"></a-entity>
+
       <!-- Camera -->
-      <a-entity id="camera" camera look-controls wasd-controls="false" position="0 1.6 0">
-        <a-entity 
-          cursor="rayOrigin: mouse" 
-          raycaster="objects: .shoot-button"
-          position="0 0 -1">
-        </a-entity>
+      <a-entity id="camera" position="0 1.6 4">
+        <a-camera>
+          <a-cursor raycaster="objects: .shoot-button" fuse="false"></a-cursor>
+        </a-camera>
       </a-entity>
 
       <!-- Ground -->
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="20" height="20" color="#7BC8A4" static-body></a-plane>
+      <a-plane position="0 0 0" rotation="-90 0 0" width="20" height="20" color="#7BC8A4" static-body></a-plane>
 
       <!-- Ball -->
       <a-sphere id="ball" position="0 0.5 -2" radius="0.3" color="red" dynamic-body></a-sphere>
@@ -60,8 +61,7 @@
       <a-ring position="0 2 -8" rotation="90 0 0" radius-inner="0.5" radius-outer="0.6" color="white" static-body></a-ring>
 
       <!-- Big Button -->
-      <a-cylinder id="shootButton" class="shoot-button" color="#F16745" radius="0.5" height="0.1"
-                  position="0 0.3 -1"></a-cylinder>
+      <a-cylinder id="shootButton" class="shoot-button" color="#F16745" radius="0.5" height="0.1" position="0 0.3 -1"></a-cylinder>
 
       <script>
         let isHolding = false;
@@ -87,6 +87,7 @@
           const dir = new THREE.Vector3(0, 1, -1).normalize();
           const force = dir.multiplyScalar(strength);
 
+          // Reset and apply force
           ball.setAttribute('position', '0 0.5 -2');
           ball.body.velocity.set(0, 0, 0);
           ball.body.angularVelocity.set(0, 0, 0);
